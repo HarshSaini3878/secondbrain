@@ -1,13 +1,31 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import mongoose from "mongoose";
+import chalk from 'chalk';
+import { User } from "./db"; // Assuming you have the User model defined in db.ts
+
 const app = express();
 app.use(express.json());
 
 const JWT_Secret: string = "radheradhe";
 
+// Connect to MongoDB with async/await
+const connectDB = async (): Promise<void> => {
+    try {
+        await mongoose.connect('mongodb://localhost:27017/secondbrain');
+        console.log(chalk.greenBright('Connected to MongoDB successfully!'));
+    } catch (error: any) {
+        console.error(chalk.red('Error connecting to MongoDB:', error.message));
+        process.exit(1); // Exit the process if the connection fails
+    }
+};
+
+// Call the async function to connect
+connectDB();
+
 // Signin Route
-app.post("/api/v1/signin", async (req, res) => {
+app.post("/api/v1/signin", async (req: Request, res: Response): Promise<Response> => {
     const { username, password } = req.body;
 
     try {
@@ -31,7 +49,7 @@ app.post("/api/v1/signin", async (req, res) => {
         const token = jwt.sign({ username: user.username, userId: user._id }, JWT_Secret, { expiresIn: "1h" });
 
         // Respond with success and token
-        res.status(200).json({
+        return res.status(200).json({
             message: "User signed in successfully",
             user: {
                 username: user.username
@@ -41,7 +59,7 @@ app.post("/api/v1/signin", async (req, res) => {
 
     } catch (error: any) {
         console.error(error);
-        res.status(500).json({
+        return res.status(500).json({
             message: "Internal server error",
             error: error.message
         });
@@ -49,7 +67,7 @@ app.post("/api/v1/signin", async (req, res) => {
 });
 
 // Signup Route
-app.post("/api/v1/signup", async (req, res) => {
+app.post("/api/v1/signup", async (req: Request, res: Response): Promise<Response> => {
     const { username, password } = req.body;
 
     try {
@@ -69,13 +87,12 @@ app.post("/api/v1/signup", async (req, res) => {
             username: username,
             password: hashedPassword, // storing the hashed password
         });
-        await user.save();
 
         // Create a JWT token after successful user creation
         const token = jwt.sign({ username: user.username, userId: user._id }, JWT_Secret, { expiresIn: "1h" });
 
         // Respond with success and token
-        res.status(201).json({
+        return res.status(201).json({
             message: "User created successfully",
             user: {
                 username: user.username
@@ -85,9 +102,13 @@ app.post("/api/v1/signup", async (req, res) => {
 
     } catch (error: any) {
         console.error(error);
-        res.status(500).json({
+        return res.status(500).json({
             message: "Internal server error",
             error: error.message
         });
     }
+});
+
+app.listen(8080, () => {
+    console.log(chalk.blue("Server started at port 8080"));
 });
