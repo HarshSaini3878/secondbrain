@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 import chalk from 'chalk';
-import { User } from "./db";
+import { User,Content } from "./db";
 
 
 const app = express();
@@ -109,6 +109,22 @@ app.post("/api/v1/signup", async (req: Request, res: Response): Promise<any> => 
         });
     }
 });
+
+app.post("/api/v1/content",async(req:Request,res:Response):Promise<any>=>{
+
+})
+
+
+
+
+
+
+
+
+
+
+
+
 
 app.listen(8080, () => {
     console.log(chalk.blue("Server started at port 8080"));
