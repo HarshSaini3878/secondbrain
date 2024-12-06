@@ -3,7 +3,8 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 import chalk from 'chalk';
-import { User } from "./db"; // Assuming you have the User model defined in db.ts
+import { User } from "./db";
+
 
 const app = express();
 app.use(express.json());
@@ -25,7 +26,7 @@ const connectDB = async (): Promise<void> => {
 connectDB();
 
 // Signin Route
-app.post("/api/v1/signin", async (req: Request, res: Response): Promise<Response> => {
+app.post("/api/v1/signin", async (req: Request, res: Response):Promise<any>=> {
     const { username, password } = req.body;
 
     try {
@@ -67,7 +68,7 @@ app.post("/api/v1/signin", async (req: Request, res: Response): Promise<Response
 });
 
 // Signup Route
-app.post("/api/v1/signup", async (req: Request, res: Response): Promise<Response> => {
+app.post("/api/v1/signup", async (req: Request, res: Response): Promise<any> => {
     const { username, password } = req.body;
 
     try {
