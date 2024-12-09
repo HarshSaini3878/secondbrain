@@ -213,7 +213,7 @@ app.post('/api/v1/content', isSignin, async (req: RequestWithUser, res: Response
     const share = req.body.share;
     if (share) {
             const existingLink = await LinkModel.findOne({
-                userId: req.user._id
+              _id: req.user._id
             });
 
             if (existingLink) {
@@ -224,7 +224,7 @@ app.post('/api/v1/content', isSignin, async (req: RequestWithUser, res: Response
             }
             const hash = random(10);
             await LinkModel.create({
-                userId: req.user._id,
+              _id: req.user._id,
                 hash: hash
             })
 
@@ -233,7 +233,7 @@ app.post('/api/v1/content', isSignin, async (req: RequestWithUser, res: Response
             })
     } else {
         await LinkModel.deleteOne({
-            userId: req.user._id
+          _id: req.user._id
         });
 
         res.json({
@@ -257,7 +257,7 @@ app.get("/api/v1/brain/:shareLink",async (req: RequestWithUser, res: Response): 
     }
     // userId
     const content = await Content.find({
-        userId: link.userId
+        _id: link.userId
     })
 
     console.log(link);
