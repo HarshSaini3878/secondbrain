@@ -3,8 +3,9 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 import chalk from 'chalk';
-import { User,Content } from "./db";
+import { User,Content, LinkModel } from "./db";
 import { isSignin } from "./middleware";
+import { random } from "./utils";
 interface IUser {
     _id: mongoose.Types.ObjectId;
     username: string;
@@ -207,6 +208,76 @@ app.post('/api/v1/content', isSignin, async (req: RequestWithUser, res: Response
       res.status(500).json({ message: 'Server error. Could not delete content.' });
     }
   });
+
+  app.post("/api/v1/brain/share", isSignin, async (req: RequestWithUser, res: Response): Promise<any> => {
+    const share = req.body.share;
+    if (share) {
+            const existingLink = await LinkModel.findOne({
+                userId: req.user._id
+            });
+
+            if (existingLink) {
+                res.json({
+                    hash: existingLink.hash
+                })
+                return;
+            }
+            const hash = random(10);
+            await LinkModel.create({
+                userId: req.user._id,
+                hash: hash
+            })
+
+            res.json({
+                hash
+            })
+    } else {
+        await LinkModel.deleteOne({
+            userId: req.user._id
+        });
+
+        res.json({
+            message: "Removed link"
+        })
+    }
+})
+
+app.get("/api/v1/brain/:shareLink",async (req: RequestWithUser, res: Response): Promise<any> => {
+    const hash = req.params.shareLink;
+
+    const link = await LinkModel.findOne({
+        hash
+    });
+
+    if (!link) {
+        res.status(411).json({
+            message: "Sorry incorrect input"
+        })
+        return;
+    }
+    // userId
+    const content = await Content.find({
+        userId: link.userId
+    })
+
+    console.log(link);
+    const user = await User.findOne({
+        _id: link.userId
+    })
+
+    if (!user) {
+        res.status(411).json({
+            message: "user not found, error should ideally not happen"
+        })
+        return;
+    }
+
+    res.json({
+        username: user.username,
+        content: content
+    })
+
+})
 
 
 
