@@ -6,6 +6,7 @@ import chalk from 'chalk';
 import { User,Content, LinkModel } from "./db";
 import { isSignin } from "./middleware";
 import { random } from "./utils";
+import cors from "cors"
 interface IUser {
     _id: mongoose.Types.ObjectId;
     username: string;
@@ -18,7 +19,7 @@ interface IUser {
   
 const app = express();
 app.use(express.json());
-
+app.use(cors())
 const JWT_Secret: string = "radheradhe";
 
 // Connect to MongoDB with async/await
