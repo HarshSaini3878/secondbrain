@@ -1,34 +1,27 @@
-import { ReactNode } from "react";
+import { ReactElement } from "react";
 
-interface ButtonInterface {
-    title: string;
-    size: "lg" | "sm" | "md";
-    startIcon?: ReactNode;
-    endIcon?: ReactNode;
+interface ButtonProps {
     variant: "primary" | "secondary";
-    onclick?:()=>void;
+    text: string;
+    startIcon?: ReactElement;
+    onClick?: () => void;
+    fullWidth?: boolean;
+    loading?: boolean;
 }
 
-const sizeStyles = {
-    lg: "px-8 py-4 text-xl rounded-xl",
-    md: "px-4 py-2 text-md rounded-md",
-    sm: "px-2 py-1 text-sm rounded-sm",
+const variantClasses = {
+    "primary": "bg-purple-600 text-white",
+    "secondary": "bg-purple-200 text-purple-600",
 };
 
-const variantStyles = {
-    primary: "bg-purple-600 text-white",
-    secondary: "bg-purple-300 text-purple-600",
-};
+const defaultStyles = "px-4 py-2 rounded-md font-light flex items-center";
 
-export function Button({ title, size, startIcon, endIcon, variant,onclick }: ButtonInterface) {
-    return (
-        <button onClick={onclick}
-            className={`${sizeStyles[size]} ${variantStyles[variant]} flex items-center justify-center`}
-            aria-label={title}
-        >
-            {startIcon && <span className="mr-2">{startIcon}</span>}
-            <span>{title}</span>
-            {endIcon && <span className="ml-2">{endIcon}</span>}
-        </button>
-    );
+
+export function Button({variant, text, startIcon, onClick, fullWidth, loading}: ButtonProps) {
+    return <button onClick={onClick} className={variantClasses[variant] + " " + defaultStyles + `${fullWidth ? " w-full flex justify-center items-center" : ""} ${loading ? "opacity-45	" : ""}`} disabled={loading}>
+        <div className="pr-2">
+            {startIcon}
+        </div>
+        {text}
+    </button>
 }
