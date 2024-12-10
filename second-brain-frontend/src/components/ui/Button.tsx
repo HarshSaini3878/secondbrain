@@ -6,6 +6,7 @@ interface ButtonInterface {
     startIcon?: ReactNode;
     endIcon?: ReactNode;
     variant: "primary" | "secondary";
+    onclick?:()=>void;
 }
 
 const sizeStyles = {
@@ -19,9 +20,9 @@ const variantStyles = {
     secondary: "bg-purple-300 text-purple-600",
 };
 
-export function Button({ title, size, startIcon, endIcon, variant }: ButtonInterface) {
+export function Button({ title, size, startIcon, endIcon, variant,onclick }: ButtonInterface) {
     return (
-        <button
+        <button onClick={onclick}
             className={`${sizeStyles[size]} ${variantStyles[variant]} flex items-center justify-center`}
             aria-label={title}
         >
