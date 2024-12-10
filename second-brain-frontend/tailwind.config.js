@@ -13,10 +13,12 @@ export default {
           600: "#95989c"
         },
         purple: {
-          200: "#d9ddee",
-          500: "#9492db",
-          600: "#7164c0",
-        }
+          200: "#d9ddee", // Light purple
+          300: "#b8aee0", // New purple shade 300
+          500: "#9492db", // Default purple
+          600: "#7164c0", // Dark purple
+          700: "#4e46a1", // New purple shade 700
+        },
       }
     },
   },

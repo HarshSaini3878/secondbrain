@@ -3,9 +3,9 @@ interface PlusIconProps {
 }
 
 const sizeVariants = {
-    "sm": "size-2",
-    "md": "size-4",
-    "lg": "size-6"
+    sm: "w-4 h-4", // 1rem
+    md: "w-6 h-6", // 1.5rem
+    lg: "w-8 h-8", // 2rem
 }
 
 export function PlusIcon(props: PlusIconProps) {
