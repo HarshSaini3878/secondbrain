@@ -59,6 +59,7 @@ export default function Dashboard() {
                   },
                 }
               );
+              //@ts-ignore
               const shareUrl = `http://localhost:8080/share/${response.data.hash}`;
               navigator.clipboard.writeText(shareUrl);
               alert("Share URL copied to clipboard!");
@@ -80,8 +81,8 @@ export default function Dashboard() {
             {contents.length === 0 ? (
               <p className="text-center text-gray-500 text-lg">No content available. Add new content.</p>
             ) : (
-              contents.map(({ type, link, title }) => (
-                <Card key={link} type={type} link={link} title={title} />
+              contents.map(({ type, link, title ,id }) => (
+                <Card key={link} type={type} link={link} title={title} contentId={id} />
               ))
             )}
           </div>

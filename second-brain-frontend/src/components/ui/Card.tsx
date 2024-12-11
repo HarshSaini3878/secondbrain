@@ -1,15 +1,38 @@
 import { useEffect } from "react";
 import { FaTwitter, FaYoutube, FaTrashAlt, FaShareAlt } from "react-icons/fa";
 import { Link } from "react-router-dom";
-
+import { BACKEND_URL } from "../../../config";
+import axios from "axios";
 interface CardProps {
   title: string;
   link: string;
   type: "twitter" | "youtube";
+  contentId:any;
 }
 
-export function Card({ title, link, type }: CardProps) {
-
+export function Card({ title, link, type,contentId }: CardProps) {
+  const handleDelete = async () => {
+    try {
+     
+      console.log("hello")
+      const response = await axios.delete(`${BACKEND_URL}/api/v1/content`, {
+        //@ts-ignore
+        data: { contentId },
+        headers: {
+          Authorization: localStorage.getItem("token"),
+        }, // Send contentId in the request body
+      });
+console.log("hello2")
+      // Alert the user of success
+      //@ts-ignore
+      alert(response.data.message);
+      
+      // Optionally, trigger any state updates to remove the content from the UI
+    } catch (error) {
+      console.error("Error deleting content:", error);
+      alert("Failed to delete content.");
+    }
+  };
   // Dynamically load Twitter embed script if the content is from Twitter
   useEffect(() => {
     if (type === "twitter") {
@@ -57,7 +80,7 @@ export function Card({ title, link, type }: CardProps) {
           
           {/* Trash Icon */}
           <button
-            onClick={() => alert("Item deleted")} // Implement delete logic as required
+            onClick={handleDelete} // Implement delete logic as required
             className="text-gray-500 hover:text-red-500 transition"
           >
             <FaTrashAlt />

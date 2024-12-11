@@ -188,7 +188,8 @@ app.post('/api/v1/content', isSignin, async (req: RequestWithUser, res: Response
     try {
       // Extract the contentId from the request body or query parameter
       const { contentId } = req.body;  // You can also use req.query or req.params if necessary
-  
+     console.log(contentId)
+     console.log(req.body)
       // Validate contentId
       if (!contentId) {
         res.status(400).json({ message: 'Content ID is required.' });
@@ -199,6 +200,8 @@ app.post('/api/v1/content', isSignin, async (req: RequestWithUser, res: Response
       //@ts-ignore
       const content = await Content.findOne({ _id: contentId, userId: req.user?._id });
   
+
+        console.log(content)
       // If content is not found or doesn't belong to the user, return an error
       if (!content) {
         res.status(404).json({ message: 'Content not found or you do not have permission to delete it.' });
