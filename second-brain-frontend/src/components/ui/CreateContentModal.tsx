@@ -37,7 +37,30 @@ export function CreateContentModal({open, onClose}:any) {
 
         onClose();
 
+<<<<<<< HEAD
     }
+=======
+  async function addContent() {
+    const title = titleRef.current?.value;
+    const link = linkRef.current?.value;
+
+    await axios.post(
+      `${BACKEND_URL}/api/v1/content`,
+      {
+        link,
+        title,
+        type,
+      },
+      {
+        headers: {
+          Authorization: localStorage.getItem("token"),
+        },
+      }
+    );
+
+    onClose();
+  }
+>>>>>>> parent of f2b56bd (de bugging)
 
     return <div>
         {open && <div> 

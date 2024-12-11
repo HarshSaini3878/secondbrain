@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { BACKEND_URL } from "../../config";
 import { Input } from "../components/ui/Input";
 import { Button } from "../components/ui/Button";
@@ -82,9 +82,9 @@ export default function Signup() {
                 <div className="mt-4 text-center">
                     <p className="text-sm text-gray-600">
                         Already have an account?{" "}
-                        <Link to="/signin" className="text-indigo-600 hover:text-indigo-800">
+                        <a href="/signin" className="text-indigo-600 hover:text-indigo-800">
                             Sign in here
-                        </Link>
+                        </a>
                     </p>
                 </div>
             </div>
