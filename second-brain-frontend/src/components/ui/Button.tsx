@@ -1,5 +1,5 @@
 import { ReactElement } from "react";
-
+import { Loader2 } from 'lucide-react'
 interface ButtonProps {
     variant: "primary" | "secondary";
     text: string;

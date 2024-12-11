@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { BACKEND_URL } from "../../config";
 import { Input } from "../components/ui/Input";
 import { Button } from "../components/ui/Button";
@@ -47,9 +47,9 @@ export default function Signup() {
                 <div className="mt-4 text-center">
                     <p className="text-sm text-gray-600">
                         Already have an account?{" "}
-                        <a href="/signin" className="text-indigo-600 hover:text-indigo-800">
+                        <Link to="/signin" className="text-indigo-600 hover:text-indigo-800">
                             Sign in here
-                        </a>
+                        </Link>
                     </p>
                 </div>
             </div>

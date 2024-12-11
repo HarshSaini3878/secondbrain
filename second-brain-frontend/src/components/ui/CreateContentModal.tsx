@@ -24,22 +24,40 @@ export function CreateContentModal({ open, onClose }: ModalProps) {
   async function addContent() {
     const title = titleRef.current?.value;
     const link = linkRef.current?.value;
-
-    await axios.post(
-      `${BACKEND_URL}/api/v1/content`,
-      {
-        link,
-        title,
-        type,
-      },
-      {
-        headers: {
-          Authorization: localStorage.getItem("token"),
+    
+    const token = localStorage.getItem("token");
+    console.log("Token:", token); // Debugging the token value
+    // Validate that fields are not empty
+    if (!title || !link || !type) {
+      alert("Please fill in all fields before submitting.");
+      return;
+    }
+  
+    try {
+      // Make the request to the backend
+      await axios.post(
+        `${BACKEND_URL}/api/v1/content`,
+        {
+          link,
+          title,
+          type,
         },
-      }
-    );
-
-    onClose();
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      
+      // Close the modal after submission
+      onClose();
+  
+      // Optionally, trigger a content refresh or success notification
+      alert("Content added successfully!");
+    } catch (error) {
+      console.error("Error adding content:", error);
+      alert("Failed to add content. Please try again.");
+    }
   }
 
   return (

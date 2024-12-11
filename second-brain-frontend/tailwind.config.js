@@ -18,6 +18,9 @@ export default {
           500: "#9492db", // Default purple
           600: "#7164c0", // Dark purple
           700: "#4e46a1", // New purple shade 700
+        }, 
+        backgroundImage: {
+          'grid-white': 'linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px)',
         },
       }
     },
