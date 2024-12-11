@@ -159,17 +159,21 @@ app.post('/api/v1/content', isSignin, async (req: RequestWithUser, res: Response
       const userId = req.user?._id;
   
       // Fetch content associated with the authenticated user
-      const contentList = await Content.find({ userId }).populate("userId","username");
+      const contentList = await Content.find({ userId }).populate("userId", "username").populate("authorId", "username");
   
       // Map the content list to the desired format
-      const formattedContent = contentList.map(content => ({
-        id: content._id.toString(), // Convert ObjectId to string
-        type: content.type,
-        link: content.link,
-        title: content.title,
-        
-        author:content.authorId.toString()// Convert ObjectId to string if necessary
-      }));
+      const formattedContent = contentList.map(content => {
+        const contentId = content._id ? content._id.toString() : null; // Check if _id exists
+        const authorId = content.authorId ? content.authorId.toString() : null; // Check if authorId exists
+  
+        return {
+          id: contentId,
+          type: content.type,
+          link: content.link,
+          title: content.title,
+          author: authorId
+        };
+      });
   
       // Return the content in the required format
       res.status(200).json({ content: formattedContent });
