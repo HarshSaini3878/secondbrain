@@ -1,127 +1,80 @@
 import { useRef, useState } from "react";
-import { CrossIcon } from "../../icons/CrossIcon";
+
 import { Button } from "./Button";
 import { Input } from "./Input";
-import { BACKEND_URL } from "../../../config";
+
 import axios from "axios";
-import { motion, AnimatePresence } from "framer-motion";
+import { BACKEND_URL } from "../../../config";
+import { CrossIcon } from "../../icons/CrossIcon";
+
+
 
 enum ContentType {
-  Youtube = "youtube",
-  Twitter = "twitter",
+    Youtube = "youtube",
+    Twitter = "twitter"
 }
 
-interface ModalProps {
-  open: boolean;
-  onClose: () => void;
-}
+// controlled component
+export function CreateContentModal({open, onClose}:any) {
+    const titleRef = useRef<HTMLInputElement>();
+    const linkRef = useRef<HTMLInputElement>();
+    const [type, setType] = useState(ContentType.Youtube);
 
-export function CreateContentModal({ open, onClose }: ModalProps) {
-  const titleRef = useRef<HTMLInputElement>(null);
-  const linkRef = useRef<HTMLInputElement>(null);
-  const [type, setType] = useState(ContentType.Youtube);
+    async function addContent() {
+        const title = titleRef.current?.value;
+        const link = linkRef.current?.value;
 
-  async function addContent() {
-    const title = titleRef.current?.value;
-    const link = linkRef.current?.value;
-    
-    const token = localStorage.getItem("token");
-    console.log("Token:", token); // Debugging the token value
-    // Validate that fields are not empty
-    if (!title || !link || !type) {
-      alert("Please fill in all fields before submitting.");
-      return;
+        await axios.post(`${BACKEND_URL
+        }/api/v1/content`, {
+            link,
+            title,
+            type
+        }, {
+            headers: {
+                "Authorization": localStorage.getItem("token")
+            }
+        })
+
+        onClose();
+
     }
-  
-    try {
-      // Make the request to the backend
-      await axios.post(
-        `${BACKEND_URL}/api/v1/content`,
-        {
-          link,
-          title,
-          type,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      
-      // Close the modal after submission
-      onClose();
-  
-      // Optionally, trigger a content refresh or success notification
-      alert("Content added successfully!");
-    } catch (error) {
-      console.error("Error adding content:", error);
-      alert("Failed to add content. Please try again.");
-    }
-  }
 
-  return (
-    <AnimatePresence>
-      {open && (
-        <div className="fixed inset-0 z-50">
-          {/* Overlay */}
-          <motion.div
-            className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          ></motion.div>
-
-          {/* Modal Container */}
-          <motion.div
-            className="fixed inset-0 flex items-center justify-center px-4"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-          >
-            <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 relative">
-              {/* Close Icon */}
-              <button
-                onClick={onClose}
-                className="absolute top-3 right-3 text-gray-500 hover:text-gray-800"
-              >
-                <CrossIcon />
-              </button>
-
-              {/* Modal Content */}
-              <h2 className="text-lg font-semibold text-center text-gray-800 mb-4">
-                Create Content
-              </h2>
-              <div className="space-y-4">
-                <Input reference={titleRef} placeholder="Title" />
-                <Input reference={linkRef} placeholder="Link" />
-              </div>
-
-              {/* Type Selection */}
-              <div className="mt-6">
-                <h3 className="text-sm text-gray-600">Type</h3>
-                <div className="flex gap-2 justify-center mt-2">
-                  <Button
-                    text="Youtube"
-                    variant={type === ContentType.Youtube ? "primary" : "secondary"}
-                    onClick={() => setType(ContentType.Youtube)}
-                  />
-                  <Button
-                    text="Twitter"
-                    variant={type === ContentType.Twitter ? "primary" : "secondary"}
-                    onClick={() => setType(ContentType.Twitter)}
-                  />
-                </div>
-              </div>
-
-              {/* Submit Button */}
-              <div className="mt-6 flex justify-center">
-                <Button onClick={addContent} variant="primary" text="Submit" />
-              </div>
+    return <div>
+        {open && <div> 
+            <div className="w-screen h-screen bg-slate-500 fixed top-0 left-0 opacity-60 flex justify-center">
+               
             </div>
-          </motion.div>
-        </div>
-      )}
-    </AnimatePresence>
-  );
+            <div className="w-screen h-screen fixed top-0 left-0 flex justify-center">
+                <div className="flex flex-col justify-center">
+                    <span className="bg-white opacity-100 p-4 rounded fixed">
+                        <div className="flex justify-end">
+                            <div onClick={onClose} className="cursor-pointer">
+                                <CrossIcon />
+                            </div>
+                        </div>
+                        <div>
+                            <Input reference={titleRef} placeholder={"Title"} />
+                            <Input reference={linkRef} placeholder={"Link"} />
+                        </div>
+                        <div>
+                            <h1>Type</h1>
+                            <div className="flex gap-1 justify-center pb-2">
+                                <Button text="Youtube" variant={type === ContentType.Youtube ? "primary" : "secondary"} onClick={() => {
+                                    setType(ContentType.Youtube)
+                                }}></Button>
+                                <Button text="Twitter" variant={type === ContentType.Twitter ? "primary" : "secondary"} onClick={() => {
+                                    setType(ContentType.Twitter)
+                                }}></Button>
+                            </div>
+                        </div>
+                        <div className="flex justify-center">
+                            <Button onClick={addContent} variant="primary" text="Submit" />
+                        </div>
+                    </span>
+                </div>     
+            </div>
+            
+        </div>}
+    </div>
+
 }
