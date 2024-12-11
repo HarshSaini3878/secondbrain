@@ -48,22 +48,29 @@ export default function Dashboard() {
           {/* Button for sharing brain */}
           <Button
             onClick={async () => {
-              const response = await axios.post(
-                `${BACKEND_URL}/api/v1/brain/share`,
-                {
-                  share: true,
-                },
-                {
-                  headers: {
-                    Authorization: localStorage.getItem("token"),
+              try {
+                const response = await axios.post(
+                  `${BACKEND_URL}/api/v1/brain/share`,
+                  {
+                    share: true,
                   },
-                }
-              );
-              //@ts-ignore
-              const shareUrl = `http://localhost:8080/share/${response.data.hash}`;
-              navigator.clipboard.writeText(shareUrl);
-              alert("Share URL copied to clipboard!");
+                  {
+                    headers: {
+                      Authorization: localStorage.getItem("token"),
+                    },
+                  }
+                );
+            
+                //@ts-ignore
+                const shareUrl = `http://localhost:8080/share/${response.data.hash}`;
+                await navigator.clipboard.writeText(shareUrl);
+                alert("Share URL copied to clipboard!");
+              } catch (error) {
+                console.error("Error sharing the URL:", error);
+                alert("Failed to generate and copy the share URL. Please try again.");
+              }
             }}
+            
             variant="secondary"
             text="Share Brain"
             startIcon={<ShareIcon size="md" />}

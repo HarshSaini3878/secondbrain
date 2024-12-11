@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { BACKEND_URL } from "../../../config";
 import axios from "axios";
 import { toast, Toaster } from 'react-hot-toast';
-import { useContent } from "../../Hooks/useContent";
+
 
 interface CardProps {
   title: string;

@@ -220,12 +220,15 @@ app.post('/api/v1/content', isSignin, async (req: RequestWithUser, res: Response
   });
 
   app.post("/api/v1/brain/share", isSignin, async (req: RequestWithUser, res: Response): Promise<any> => {
+   
     const share = req.body.share;
+    
     if (share) {
             const existingLink = await LinkModel.findOne({
               //@ts-ignore
               _id: req.user._id
             });
+            console.log("hello3")
 
             if (existingLink) {
                 res.json({
@@ -233,12 +236,14 @@ app.post('/api/v1/content', isSignin, async (req: RequestWithUser, res: Response
                 })
                 return;
             }
+           
             const hash = random(10);
             await LinkModel.create({
               //@ts-ignore
-              _id: req.user._id,
+              userId: req.user._id,
                 hash: hash
             })
+            
 
             res.json({
                 hash
