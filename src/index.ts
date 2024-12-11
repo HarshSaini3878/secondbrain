@@ -8,7 +8,7 @@ import { isSignin } from "./middleware";
 import { random } from "./utils";
 import cors from "cors"
 interface IUser {
-    _id: mongoose.Types.ObjectId;
+  userId: mongoose.Types.ObjectId;
     username: string;
     password: string;
     // Add any other fields from your User model as needed
@@ -124,10 +124,10 @@ app.post("/api/v1/signup", async (req: Request, res: Response): Promise<any> => 
 app.post('/api/v1/content', isSignin, async (req: RequestWithUser, res: Response): Promise<any> => {
     try {
       // Extract the data from the request body
-      const { link, type, title, tags } = req.body;
+      const { link, type, title } = req.body;
   
       // Validate required fields
-      if (!link || !type || !title || !tags) {
+      if (!link || !type || !title ) {
         return res.status(400).json({ message: 'Missing required fields.' });
       }
   
@@ -136,13 +136,13 @@ app.post('/api/v1/content', isSignin, async (req: RequestWithUser, res: Response
         link,
         type,
         title,
-        tags: tags.map((tag: string) => new mongoose.Types.ObjectId(tag)), // Ensure tags are ObjectId type
+       //@ts-ignore
         userId: req.user?._id, // Assuming `req.user` is set by the isSignin middleware
       });
   
       // Save the content to the database
       await newContent.save();
-  
+  console.log("newContent:",newContent)
       // Return the created content as a response
       res.status(201).json({ message: 'Content created successfully', content: newContent });
     } catch (err) {
@@ -155,6 +155,7 @@ app.post('/api/v1/content', isSignin, async (req: RequestWithUser, res: Response
   app.get('/api/v1/content', isSignin, async (req: RequestWithUser, res: Response): Promise<any> => {
     try {
       // Retrieve the userId from the authenticated user (attached in the isSignin middleware)
+      //@ts-ignore
       const userId = req.user?._id;
   
       // Fetch content associated with the authenticated user
@@ -166,7 +167,7 @@ app.post('/api/v1/content', isSignin, async (req: RequestWithUser, res: Response
         type: content.type,
         link: content.link,
         title: content.title,
-        tags: content.tags.map(tag => tag.toString()), 
+        
         author:content.authorId.toString()// Convert ObjectId to string if necessary
       }));
   
@@ -191,6 +192,7 @@ app.post('/api/v1/content', isSignin, async (req: RequestWithUser, res: Response
       }
   
       // Ensure the content belongs to the authenticated user
+      //@ts-ignore
       const content = await Content.findOne({ _id: contentId, userId: req.user?._id });
   
       // If content is not found or doesn't belong to the user, return an error
@@ -214,6 +216,7 @@ app.post('/api/v1/content', isSignin, async (req: RequestWithUser, res: Response
     const share = req.body.share;
     if (share) {
             const existingLink = await LinkModel.findOne({
+              //@ts-ignore
               _id: req.user._id
             });
 
@@ -225,6 +228,7 @@ app.post('/api/v1/content', isSignin, async (req: RequestWithUser, res: Response
             }
             const hash = random(10);
             await LinkModel.create({
+              //@ts-ignore
               _id: req.user._id,
                 hash: hash
             })
@@ -234,6 +238,7 @@ app.post('/api/v1/content', isSignin, async (req: RequestWithUser, res: Response
             })
     } else {
         await LinkModel.deleteOne({
+          //@ts-ignore
           _id: req.user._id
         });
 
