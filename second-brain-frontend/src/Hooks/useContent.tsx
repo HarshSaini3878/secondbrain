@@ -13,6 +13,7 @@ export function useContent() {
             }
         })
             .then((response) => {
+                //@ts-ignore
                 setContents(response.data.content)
             })
     }
@@ -21,7 +22,7 @@ export function useContent() {
         refresh()
         let interval = setInterval(() => {
             refresh()
-        }, 10 * 1000)
+        }, 2 * 1000)
 
         return () => {
             clearInterval(interval);

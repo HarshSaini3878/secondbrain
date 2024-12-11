@@ -1,38 +1,60 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { FaTwitter, FaYoutube, FaTrashAlt, FaShareAlt } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { BACKEND_URL } from "../../../config";
 import axios from "axios";
+import { toast, Toaster } from 'react-hot-toast';
+import { useContent } from "../../Hooks/useContent";
+
 interface CardProps {
   title: string;
   link: string;
   type: "twitter" | "youtube";
-  contentId:any;
+  contentId: any;
 }
 
-export function Card({ title, link, type,contentId }: CardProps) {
+export function Card({ title, link, type, contentId }: CardProps) {
+ 
+  const [loading, setLoading] = useState(false); // Add loading state
+
   const handleDelete = async () => {
+    setLoading(true); // Set loading to true when delete is triggered
     try {
-     
-      console.log("hello")
+      console.log("hello");
       const response = await axios.delete(`${BACKEND_URL}/api/v1/content`, {
         //@ts-ignore
         data: { contentId },
         headers: {
           Authorization: localStorage.getItem("token"),
-        }, // Send contentId in the request body
+        },
       });
-console.log("hello2")
-      // Alert the user of success
-      //@ts-ignore
-      alert(response.data.message);
+      console.log("hello2");
+
+      // Delay for 1 second before showing the toast
+      setTimeout(() => {
+        // Show success message after the delay
+        //@ts-ignore
+        toast.success(response.data.message, {
+          position: "top-right",
+          duration: 2000,
+        });
+      }, 1000); // 1 second delay
+
+      // Optionally trigger a refresh to update the UI
       
-      // Optionally, trigger any state updates to remove the content from the UI
     } catch (error) {
       console.error("Error deleting content:", error);
-      alert("Failed to delete content.");
+
+      // Show error toast immediately after failure
+      toast.error("Failed to delete content.", {
+        position: "top-right",
+        duration: 5000,
+      });
+    } finally {
+      setLoading(false); // Set loading to false after the operation is complete
     }
   };
+
   // Dynamically load Twitter embed script if the content is from Twitter
   useEffect(() => {
     if (type === "twitter") {
@@ -50,7 +72,9 @@ console.log("hello2")
 
   // Function to format YouTube URL
   const getYouTubeEmbedUrl = (url: string) => {
-    const videoIdMatch = url.match(/(?:youtube\.com\/(?:[^/]+\/.*\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    const videoIdMatch = url.match(
+      /(?:youtube\.com\/(?:[^/]+\/.*\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
+    );
     if (videoIdMatch && videoIdMatch[1]) {
       return `https://www.youtube.com/embed/${videoIdMatch[1]}`;
     }
@@ -76,14 +100,18 @@ console.log("hello2")
           >
             <FaShareAlt />
           </Link>
-         
-          
+
           {/* Trash Icon */}
           <button
             onClick={handleDelete} // Implement delete logic as required
-            className="text-gray-500 hover:text-red-500 transition"
+            className="text-gray-500 hover:text-red-500 transition disabled:opacity-50"
+            disabled={loading} // Disable button when loading
           >
-            <FaTrashAlt />
+            {loading ? (
+              <span>Loading...</span> // Show loading text or spinner
+            ) : (
+              <FaTrashAlt />
+            )}
           </button>
         </div>
       </div>
@@ -109,6 +137,7 @@ console.log("hello2")
           </blockquote>
         )}
       </div>
+      <Toaster />
     </div>
   );
 }
