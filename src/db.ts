@@ -1,3 +1,24 @@
+<<<<<<< HEAD
+
+import mongoose, {model, Schema} from "mongoose";
+
+mongoose.connect("mongodb://localhost:27017/brainly")
+
+const UserSchema = new Schema({
+    username: {type: String, unique: true},
+    password: String
+})
+
+export const UserModel = model("User", UserSchema);
+
+const ContentSchema = new Schema({
+    title: String,
+    link: String,
+    tags: [{type: mongoose.Types.ObjectId, ref: 'Tag'}],
+    type: String,
+    userId: {type: mongoose.Types.ObjectId, ref: 'User', required: true },
+})
+=======
 import mongoose ,{Schema,Types} from "mongoose";
 
 const UserSchema = new mongoose.Schema({
@@ -48,9 +69,17 @@ const contentSchema = new Schema({
 
 
 // Optionally, you can add methods or other schema options here
+>>>>>>> parent of f2b56bd (de bugging)
 
-export const Content = mongoose.model('Content', contentSchema);
+const LinkSchema = new Schema({
+    hash: String,
+    userId: {type: mongoose.Types.ObjectId, ref: 'User', required: true, unique: true },
+})
 
+<<<<<<< HEAD
+export const LinkModel = model("Links", LinkSchema);
+export const ContentModel = model("Content", ContentSchema);
+=======
 
 
 const tagSchema = new mongoose.Schema({
@@ -65,3 +94,4 @@ const tagSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true,unique:true },
 });
 export const LinkModel = mongoose.model('Link', linkSchema);
+>>>>>>> parent of f2b56bd (de bugging)
