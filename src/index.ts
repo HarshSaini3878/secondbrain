@@ -1,32 +1,15 @@
-<<<<<<< HEAD
-import express from "express";
-import { random } from "./utils";
-import jwt from "jsonwebtoken";
-import { ContentModel, LinkModel, UserModel } from "./db";
-import { JWT_PASSWORD } from "./config";
-import { userMiddleware } from "./middleware";
-import cors from "cors";
-
-const app = express();
-app.use(express.json());
-app.use(cors());
-
-app.post("/api/v1/signup", async (req, res) => {
-    // TODO: zod validation , hash the password
-    const username = req.body.username;
-    const password = req.body.password;
-=======
 import express, { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
-import chalk from 'chalk';
+
+
 import { User,Content, LinkModel } from "./db";
 import { isSignin } from "./middleware";
 import { random } from "./utils";
 import cors from "cors"
 interface IUser {
-    _id: mongoose.Types.ObjectId;
+  userId: mongoose.Types.ObjectId;
     username: string;
     password: string;
     // Add any other fields from your User model as needed
@@ -39,45 +22,29 @@ const app = express();
 app.use(express.json());
 app.use(cors())
 const JWT_Secret: string = "radheradhe";
->>>>>>> parent of f2b56bd (de bugging)
 
+// Connect to MongoDB with async/await
+const connectDB = async (): Promise<void> => {
     try {
-        await UserModel.create({
-            username: username,
-            password: password
-        }) 
-
-        res.json({
-            message: "User signed up"
-        })
-    } catch(e) {
-        res.status(411).json({
-            message: "User already exists"
-        })
+        await mongoose.connect('mongodb://localhost:27017/secondbrain');
+        (async () => {
+          const chalk = (await import("chalk")).default;
+          console.log(chalk.greenBright('Connected to MongoDB successfully!'));
+        })();
+      
+    } catch (error: any) {
+      (async () => {
+        const chalk = (await import("chalk")).default;
+        console.error(chalk.red('Error connecting to MongoDB:', error.message));
+      })();
+        
+        process.exit(1); // Exit the process if the connection fails
     }
-})
+};
 
-app.post("/api/v1/signin", async (req, res) => {
-    const username = req.body.username;
-    const password = req.body.password;
+// Call the async function to connect
+connectDB();
 
-<<<<<<< HEAD
-    const existingUser = await UserModel.findOne({
-        username,
-        password
-    })
-    if (existingUser) {
-        const token = jwt.sign({
-            id: existingUser._id
-        }, JWT_PASSWORD)
-
-        res.json({
-            token
-        })
-    } else {
-        res.status(403).json({
-            message: "Incorrrect credentials"
-=======
 // Signin Route
 app.post("/api/v1/signin", async (req: Request, res: Response):Promise<any>=> {
     const { username, password } = req.body;
@@ -166,10 +133,10 @@ app.post("/api/v1/signup", async (req: Request, res: Response): Promise<any> => 
 app.post('/api/v1/content', isSignin, async (req: RequestWithUser, res: Response): Promise<any> => {
     try {
       // Extract the data from the request body
-      const { link, type, title, tags } = req.body;
+      const { link, type, title } = req.body;
   
       // Validate required fields
-      if (!link || !type || !title || !tags) {
+      if (!link || !type || !title ) {
         return res.status(400).json({ message: 'Missing required fields.' });
       }
   
@@ -178,13 +145,13 @@ app.post('/api/v1/content', isSignin, async (req: RequestWithUser, res: Response
         link,
         type,
         title,
-        tags: tags.map((tag: string) => new mongoose.Types.ObjectId(tag)), // Ensure tags are ObjectId type
+       //@ts-ignore
         userId: req.user?._id, // Assuming `req.user` is set by the isSignin middleware
       });
   
       // Save the content to the database
       await newContent.save();
-  
+  console.log("newContent:",newContent)
       // Return the created content as a response
       res.status(201).json({ message: 'Content created successfully', content: newContent });
     } catch (err) {
@@ -197,20 +164,26 @@ app.post('/api/v1/content', isSignin, async (req: RequestWithUser, res: Response
   app.get('/api/v1/content', isSignin, async (req: RequestWithUser, res: Response): Promise<any> => {
     try {
       // Retrieve the userId from the authenticated user (attached in the isSignin middleware)
+      //@ts-ignore
       const userId = req.user?._id;
   
       // Fetch content associated with the authenticated user
-      const contentList = await Content.find({ userId }).populate("userId","username");
+      const contentList = await Content.find({ userId }).populate("userId", "username").populate("authorId", "username");
   
       // Map the content list to the desired format
-      const formattedContent = contentList.map(content => ({
-        id: content._id.toString(), // Convert ObjectId to string
-        type: content.type,
-        link: content.link,
-        title: content.title,
-        tags: content.tags.map(tag => tag.toString()), 
-        author:content.authorId.toString()// Convert ObjectId to string if necessary
-      }));
+      //@ts-ignore
+      const formattedContent = contentList.map(content => {
+        const contentId = content._id ? content._id.toString() : null; // Check if _id exists
+        const authorId = content.authorId ? content.authorId.toString() : null; // Check if authorId exists
+  
+        return {
+          id: contentId,
+          type: content.type,
+          link: content.link,
+          title: content.title,
+          author: authorId
+        };
+      });
   
       // Return the content in the required format
       res.status(200).json({ content: formattedContent });
@@ -225,7 +198,8 @@ app.post('/api/v1/content', isSignin, async (req: RequestWithUser, res: Response
     try {
       // Extract the contentId from the request body or query parameter
       const { contentId } = req.body;  // You can also use req.query or req.params if necessary
-  
+     console.log(contentId)
+     console.log(req.body)
       // Validate contentId
       if (!contentId) {
         res.status(400).json({ message: 'Content ID is required.' });
@@ -233,8 +207,11 @@ app.post('/api/v1/content', isSignin, async (req: RequestWithUser, res: Response
       }
   
       // Ensure the content belongs to the authenticated user
+      //@ts-ignore
       const content = await Content.findOne({ _id: contentId, userId: req.user?._id });
   
+
+        console.log(content)
       // If content is not found or doesn't belong to the user, return an error
       if (!content) {
         res.status(404).json({ message: 'Content not found or you do not have permission to delete it.' });
@@ -253,11 +230,15 @@ app.post('/api/v1/content', isSignin, async (req: RequestWithUser, res: Response
   });
 
   app.post("/api/v1/brain/share", isSignin, async (req: RequestWithUser, res: Response): Promise<any> => {
+   
     const share = req.body.share;
+    
     if (share) {
             const existingLink = await LinkModel.findOne({
+              //@ts-ignore
               _id: req.user._id
             });
+            console.log("hello3")
 
             if (existingLink) {
                 res.json({
@@ -265,110 +246,33 @@ app.post('/api/v1/content', isSignin, async (req: RequestWithUser, res: Response
                 })
                 return;
             }
+           
             const hash = random(10);
             await LinkModel.create({
-              _id: req.user._id,
+              //@ts-ignore
+              userId: req.user._id,
                 hash: hash
             })
+            
 
             res.json({
                 hash
             })
     } else {
         await LinkModel.deleteOne({
+          //@ts-ignore
           _id: req.user._id
         });
 
         res.json({
             message: "Removed link"
->>>>>>> parent of f2b56bd (de bugging)
         })
     }
 })
 
-<<<<<<< HEAD
-app.post("/api/v1/content", userMiddleware, async (req, res) => {
-    const link = req.body.link;
-    const type = req.body.type;
-    await ContentModel.create({
-        link,
-        type,
-        title: req.body.title,
-        userId: req.userId,
-        tags: []
-    })
-
-    res.json({
-        message: "Content added"
-    })
-    
-})
-
-app.get("/api/v1/content", userMiddleware, async (req, res) => {
-    // @ts-ignore
-    const userId = req.userId;
-    const content = await ContentModel.find({
-        userId: userId
-    }).populate("userId", "username")
-    res.json({
-        content
-    })
-})
-
-app.delete("/api/v1/content", userMiddleware, async (req, res) => {
-    const contentId = req.body.contentId;
-
-    await ContentModel.deleteMany({
-        contentId,
-        userId: req.userId
-    })
-
-    res.json({
-        message: "Deleted"
-    })
-})
-
-app.post("/api/v1/brain/share", userMiddleware, async (req, res) => {
-    const share = req.body.share;
-    if (share) {
-            const existingLink = await LinkModel.findOne({
-                userId: req.userId
-            });
-
-            if (existingLink) {
-                res.json({
-                    hash: existingLink.hash
-                })
-                return;
-            }
-            const hash = random(10);
-            await LinkModel.create({
-                userId: req.userId,
-                hash: hash
-            })
-
-            res.json({
-                hash
-            })
-    } else {
-        await LinkModel.deleteOne({
-            userId: req.userId
-        });
-
-        res.json({
-            message: "Removed link"
-        })
-    }
-})
-
-app.get("/api/v1/brain/:shareLink", async (req, res) => {
-    const hash = req.params.shareLink;
-
-=======
 app.get("/api/v1/brain/:shareLink",async (req: RequestWithUser, res: Response): Promise<any> => {
     const hash = req.params.shareLink;
 
->>>>>>> parent of f2b56bd (de bugging)
     const link = await LinkModel.findOne({
         hash
     });
@@ -380,21 +284,12 @@ app.get("/api/v1/brain/:shareLink",async (req: RequestWithUser, res: Response): 
         return;
     }
     // userId
-<<<<<<< HEAD
-    const content = await ContentModel.find({
-        userId: link.userId
-    })
-
-    console.log(link);
-    const user = await UserModel.findOne({
-=======
     const content = await Content.find({
         _id: link.userId
     })
 
     console.log(link);
     const user = await User.findOne({
->>>>>>> parent of f2b56bd (de bugging)
         _id: link.userId
     })
 
@@ -409,12 +304,6 @@ app.get("/api/v1/brain/:shareLink",async (req: RequestWithUser, res: Response): 
         username: user.username,
         content: content
     })
-<<<<<<< HEAD
-
-})
-
-app.listen(3000);
-=======
 
 })
 
@@ -430,6 +319,9 @@ app.listen(3000);
 
 
 app.listen(8080, () => {
+  (async () => {
+    const chalk = (await import("chalk")).default;
     console.log(chalk.blue("Server started at port 8080"));
+  })();
+  
 });
->>>>>>> parent of f2b56bd (de bugging)

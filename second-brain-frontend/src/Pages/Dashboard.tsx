@@ -75,65 +75,73 @@ export function Dashboard() {
   }, [modalOpen]);
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar for larger screens */}
-      <div className="hidden md:block w-[5rem] bg-white border-r">
+      <div className="hidden md:block w-8 mr-12 bg-white border-r shadow-md">
         <Sidebar />
       </div>
 
-      <div className="flex-1 p-4 md:p-8 bg-gray-100">
+      <div className="flex-1 p-6 md:p-12 bg-gray-100">
         <CreateContentModal
           open={modalOpen}
           onClose={() => setModalOpen(false)}
         />
 
         {/* Button section */}
-        <div className="flex justify-end gap-4 mb-6 flex-col sm:flex-row">
+        <div className="flex justify-between items-center mb-8 flex-col sm:flex-row gap-4">
           {/* Button for adding content */}
           <Button
             onClick={() => setModalOpen(true)}
             variant="primary"
-            text="Add content"
+            text="Add Content"
             startIcon={<PlusIcon size="md" />}
-           
+            
           />
           {/* Button for sharing brain */}
           <Button
             onClick={async () => {
-              const response = await axios.post(
-                `${BACKEND_URL}/api/v1/brain/share`,
-                {
-                  share: true,
-                },
-                {
-                  headers: {
-                    Authorization: localStorage.getItem("token"),
+              try {
+                const response = await axios.post(
+                  `${BACKEND_URL}/api/v1/brain/share`,
+                  {
+                    share: true,
                   },
-                }
-              );
-              const shareUrl = `http://localhost:5173/share/${response.data.hash}`;
-              navigator.clipboard.writeText(shareUrl);
-              alert("Share URL copied to clipboard!");
+                  {
+                    headers: {
+                      Authorization: localStorage.getItem("token"),
+                    },
+                  }
+                );
+            
+                //@ts-ignore
+                const shareUrl = `http://localhost:8080/share/${response.data.hash}`;
+                await navigator.clipboard.writeText(shareUrl);
+                alert("Share URL copied to clipboard!");
+              } catch (error) {
+                console.error("Error sharing the URL:", error);
+                alert("Failed to generate and copy the share URL. Please try again.");
+              }
             }}
+            
             variant="secondary"
-            text="Share brain"
+            text="Share Brain"
             startIcon={<ShareIcon size="md" />}
-           // Removed fullWidth, set width to auto
+            
           />
         </div>
 
-        {/* Content area */}
+        {/* Content Area */}
         {loading ? (
           <div className="flex justify-center items-center">
-            <span>Loading content...</span>
+            <span className="text-lg font-medium text-gray-600">Loading content...</span>
           </div>
         ) : (
-          <div className="flex gap-4 flex-wrap">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {contents.length === 0 ? (
-              <p className="text-gray-500">No content available. Add new content.</p>
+              <p className="text-center text-gray-500 text-lg">No content available. Add new content.</p>
             ) : (
-              contents.map(({ type, link, title }) => (
-                <Card key={link} type={type} link={link} title={title} />
+              contents.map(({ type, link, title ,id }) => (
+                <Card key={link} type={type} link={link} title={title} contentId={id} />
               ))
             )}
           </div>
