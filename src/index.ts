@@ -3,9 +3,9 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 import chalk from 'chalk';
-import { User,Content, LinkModel } from "./db";
-import { isSignin } from "./middleware";
-import { random } from "./utils";
+import { User,Content, LinkModel } from "./db.js";
+import { isSignin } from "./middleware.js";
+import { random } from "./utils.js";
 import cors from "cors"
 interface IUser {
   userId: mongoose.Types.ObjectId;
@@ -162,6 +162,7 @@ app.post('/api/v1/content', isSignin, async (req: RequestWithUser, res: Response
       const contentList = await Content.find({ userId }).populate("userId", "username").populate("authorId", "username");
   
       // Map the content list to the desired format
+      //@ts-ignore
       const formattedContent = contentList.map(content => {
         const contentId = content._id ? content._id.toString() : null; // Check if _id exists
         const authorId = content.authorId ? content.authorId.toString() : null; // Check if authorId exists
