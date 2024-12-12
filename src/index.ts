@@ -2,10 +2,11 @@ import express, { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
-import chalk from 'chalk';
-import { User,Content, LinkModel } from "./db.js";
-import { isSignin } from "./middleware.js";
-import { random } from "./utils.js";
+
+
+import { User,Content, LinkModel } from "./db";
+import { isSignin } from "./middleware";
+import { random } from "./utils";
 import cors from "cors"
 interface IUser {
   userId: mongoose.Types.ObjectId;
@@ -26,9 +27,17 @@ const JWT_Secret: string = "radheradhe";
 const connectDB = async (): Promise<void> => {
     try {
         await mongoose.connect('mongodb://localhost:27017/secondbrain');
-        console.log(chalk.greenBright('Connected to MongoDB successfully!'));
+        (async () => {
+          const chalk = (await import("chalk")).default;
+          console.log(chalk.greenBright('Connected to MongoDB successfully!'));
+        })();
+      
     } catch (error: any) {
+      (async () => {
+        const chalk = (await import("chalk")).default;
         console.error(chalk.red('Error connecting to MongoDB:', error.message));
+      })();
+        
         process.exit(1); // Exit the process if the connection fails
     }
 };
@@ -310,5 +319,9 @@ app.get("/api/v1/brain/:shareLink",async (req: RequestWithUser, res: Response): 
 
 
 app.listen(8080, () => {
+  (async () => {
+    const chalk = (await import("chalk")).default;
     console.log(chalk.blue("Server started at port 8080"));
+  })();
+  
 });

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
-import { User } from './db.js'; // Ensure the path to the User model is correct
+import { User } from './db'; // Ensure the path to the User model is correct
 
 // Define an interface for the User model (for better type safety)
 interface IUser {
